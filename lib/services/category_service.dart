@@ -1,7 +1,18 @@
 import 'package:todo_flutter/models/category.dart';
-
+import 'package:todo_flutter/repositories/repository.dart';
 class CategoryServices{
-  saveCategory(Category category){
-    print(category.name);
+
+  Repository _repository;
+
+  CategoryServices(){
+    _repository=Repository();
+  }
+
+  saveCategory(Category category)async{
+   return await _repository.save('categories',category.categoryMap());
+  }
+
+  getCategories() async{
+   return await _repository.getAll('categories');
   }
 }

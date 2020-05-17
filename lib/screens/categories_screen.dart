@@ -14,6 +14,23 @@ class _CategoryScreenState extends State<CategoryScreen> {
   var _category=Category();
   var _categoryService=CategoryServices();
 
+  List<Widget> _categoryList=List<Widget>();
+@override
+void initState(){
+  super.initState();
+  getAllCategories();
+}
+
+getAllCategories() async{
+  var categories=await _categoryService.getCategories();
+  categories.forEach((category){
+    print(category['name']);
+    _categoryList.add(ListTile(
+      title: Text(category['name']),
+    ));
+  });
+}
+
   _showFormInDialog(BuildContext context){
     return showDialog(
       context: context,
@@ -28,10 +45,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: Text('Cancel'),
             ),
             FlatButton(
-              onPressed:(){
+              onPressed:()async{
                   _category.name=_categoryName.text;
                   _category.description=_categoryDescription.text;
-                  _categoryService.saveCategory(_category);
+                  var result=await _categoryService.saveCategory(_category);
+                  print(result);
               } ,
               child: Text('Save'),
             )
@@ -75,9 +93,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ),
         title: Text('TODO'),
       ),
-      body:
-      Center(
-        child:Text('Welcome to category screen'),
+      body:Column(
+        children: _categoryList,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
