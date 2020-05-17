@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo_flutter/models/category.dart';
+import 'package:todo_flutter/services/category_service.dart';
 
 class CategoryScreen extends StatefulWidget {
   @override
@@ -9,6 +11,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   var _categoryName=TextEditingController();
   var _categoryDescription=TextEditingController();
+  var _category=Category();
+  var _categoryService=CategoryServices();
+
   _showFormInDialog(BuildContext context){
     return showDialog(
       context: context,
@@ -24,7 +29,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
             FlatButton(
               onPressed:(){
-
+                  _category.name=_categoryName.text;
+                  _category.description=_categoryDescription.text;
+                  _categoryService.saveCategory(_category);
               } ,
               child: Text('Save'),
             )
@@ -36,14 +43,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
               TextField(
                 controller: _categoryName,
                 decoration: InputDecoration(
-                  labelText: 'Ccategory name',
+                  labelText: 'Category name',
                   hintText: 'Write category name'
                 ),
               ),
               TextField(
                 controller: _categoryDescription,
                 decoration: InputDecoration(
-                  labelText: 'Ccategory description',
+                  labelText: 'Category description',
                   hintText: 'Write category description '
                 ),
               ),
