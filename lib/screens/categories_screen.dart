@@ -11,25 +11,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   var _categoryName=TextEditingController();
   var _categoryDescription=TextEditingController();
+  var _editcategoryName=TextEditingController();
+  var _editcategoryDescription=TextEditingController();
   var _category=Category();
   var _categoryService=CategoryServices();
 
-  List<Widget> _categoryList=List<Widget>();
-@override
-void initState(){
-  super.initState();
-  getAllCategories();
-}
+  List<Category> _categoryList=List<Category>();
+  @override
+  void initState(){
+    super.initState();
+    getAllCategories();
+  }
 
-getAllCategories() async{
-  var categories=await _categoryService.getCategories();
-  categories.forEach((category){
-    print(category['name']);
-    _categoryList.add(ListTile(
-      title: Text(category['name']),
-    ));
-  });
-}
+  getAllCategories() async{
+    var categories=await _categoryService.getCategories();
+    categories.forEach((category){
+      setState(() {
+        var model=Category();
+        model.name=category['name'];
+        _categoryList.add(model);
+        });
+      });
+  }
 
   _showFormInDialog(BuildContext context){
     return showDialog(
@@ -79,6 +82,62 @@ getAllCategories() async{
       }
     );
   }
+    _editCategoryDialog(BuildContext context){
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (param){
+        return AlertDialog(
+          actions: <Widget>[
+            FlatButton(
+              onPressed: (){
+                Navigator.pop(context);
+              } ,
+              child: Text('Cancel'),
+            ),
+            FlatButton(
+              onPressed:()async{
+                  _category.name=_categoryName.text;
+                  _category.description=_categoryDescription.text;
+                  var result=await _categoryService.saveCategory(_category);
+                  print(result);
+              } ,
+              child: Text('Save'),
+            )
+          ]
+          ,title: Text('Category Form'),
+        content:SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              TextField(
+                controller: _editcategoryName,
+                decoration: InputDecoration(
+                  labelText: 'Category name',
+                  hintText: 'Write category name'
+                ),
+              ),
+              TextField(
+                controller: _editcategoryDescription,
+                decoration: InputDecoration(
+                  labelText: 'Category description',
+                  hintText: 'Write category description '
+                ),
+              ),
+            ],
+          ),
+        ) ,
+        );
+      }
+    );
+  }
+
+  _editCategory(BuildContext context,categortId) async{
+    var category=await _categoryService.getCategoryById(categortId);
+    setState(() {
+      _editcategoryName.text=category[0]['name'];
+      _editcategoryDescription.text=category[0]['description'];
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,9 +152,27 @@ getAllCategories() async{
         ),
         title: Text('TODO'),
       ),
-      body:Column(
-        children: _categoryList,
-      ),
+      body:
+      ListView.builder(itemCount: _categoryList.length,itemBuilder: (context,index){
+        return Card(
+                      child: ListTile(
+                      leading: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: (){},
+                    ),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(_categoryList[index].name),
+                        IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: (){},
+                      )
+                    ],
+                  ),
+                ),
+              );
+      }),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           _showFormInDialog(context);
