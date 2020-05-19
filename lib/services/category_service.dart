@@ -19,4 +19,11 @@ class CategoryServices{
   getCategoryById(categoryId) async{
     return await _repository.getById('categories',categoryId);
   }
+
+  updateCategory(Category category) async{
+   return await _repository.update('categories',category.categoryMap());
+  }
+  deleteCategory(categoryId)async{
+    return await _repository.delete('categories',categoryId);
+  }
 }
